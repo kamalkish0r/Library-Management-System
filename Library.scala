@@ -21,10 +21,15 @@ class Book(
     val isbn: String,
     val author: String,
     val price: Double,
-    var quantity: Int
+    var quantity: Int,
+    var showPriceAndQuantity: Boolean = false
 ) {
-  override def toString: String =
-    s"`$title` by `$author` (ISBN: $isbn Price: $price, Quantity: $quantity)"
+  override def toString: String = {
+    if (showPriceAndQuantity)
+      s"`$title` by `$author` (ISBN: $isbn,  Price: $price, Quantity: $quantity)"
+    else
+      s"`$title` by `$author` (ISBN: $isbn)"
+  }
 }
 
 class Library {
@@ -39,16 +44,27 @@ class Library {
     val customer = new Customer(name, id, accountBalance)
     customers.put(id, customer)
     println(
-      s"Customer [Name: $name, Id: $id, Balance: $accountBalance] added successfully."
+      s"${customers.apply(id)}"
     )
+    print("Customer added successfully!")
   }
 
   def removeCustomer(id: Int): Unit = {
-    var customer = customers.get(id)
-    customer match {
-      case Some(c) =>
-        customers.remove(id).nonEmpty
-        println(s"Customer with Id: $id removed successfully.")
+    customers.get(id) match {
+      case Some(customer) =>
+        if (customer.rentedBooks.isEmpty) {
+          customers.remove(id).nonEmpty
+          println(s"Customer with Id: $id removed successfully.")
+        }
+        else {
+          println(s"Can not remove `${customer.name}`!")
+          println(s"`${customer.name}` has not returned the following books:")
+          customer.rentedBooks.foreach(isbn => {
+            var book = books.apply(isbn)
+            book.showPriceAndQuantity = false
+            println(s" - $book")
+          })
+        }
       case None =>
         println(s"No customer exists with Id: $id.")
     }
@@ -62,15 +78,27 @@ class Library {
       case None =>
         val student = new Student(name, rollNo, batch)
         students.put(rollNo, student)
+        println(student)
+        println("Student added successfully!")
     }
   }
 
   def removeStudent(rollNo: String): Unit = {
-    var student = students.get(rollNo)
-    student match {
-      case Some(c) =>
-        students.remove(rollNo).nonEmpty
-        println(s"Student with RollNo: $rollNo removed successfully.")
+    students.get(rollNo) match {
+      case Some(student) =>
+        if (student.rentedBooks.isEmpty) {
+          println(s"[$student] removed successfully.")
+          students.remove(rollNo).nonEmpty
+        }
+        else {
+          println(s"Can not remove `${student.name}`!")
+          println(s"`${student.name}` has not returned the following books:")
+          student.rentedBooks.foreach(isbn => {
+            var book = books.apply(isbn)
+            book.showPriceAndQuantity = false
+            println(s" - $book")
+          })
+        }
       case None =>
         println(s"No student exists with RollNo: $rollNo.")
     }
@@ -119,7 +147,9 @@ class Library {
         }
 
         customer.rentedBooks.foreach(isbn =>
-          println(s" - ${books.apply(isbn)}")
+           var book = books.apply(isbn)
+            book.showPriceAndQuantity = false
+            println(s" - ${book}")
         )
       case None =>
         println(s"No customer with Id $id found.")
@@ -131,14 +161,13 @@ class Library {
       case Some(student) =>
         println("Student Details:")
         println(student)
-        // println(s"Name: ${student.name}")
-        // println(s"Roll No: ${student.rollNo}")
-        // println(s"Batch: ${student.batch}")
         println("Books Rented:")
         if (student.rentedBooks.isEmpty) println("None")
         else
           student.rentedBooks.foreach(isbn =>
-            println(s" - ${books.apply(isbn)}")
+            var book = books.apply(isbn)
+            book.showPriceAndQuantity = false
+            println(s" - ${book}")
           )
       case None =>
         println(s"No student found with Roll No: $rollNo")
@@ -149,9 +178,9 @@ class Library {
     println("All Registered Students:")
     if (students.isEmpty) println("No Students Found!")
     else
-      students.foreach(s =>
-        println(s"${s._1} - ${s._2.name} - ${s._2.rollNo} - ${s._2.batch}")
-      )
+      students.foreach { case(id, student) =>
+        println(student)
+      }
   }
 
   def addBook(
@@ -176,7 +205,7 @@ class Library {
     books.get(isbn) match {
       case Some(book) =>
         if (quantity > 0) {
-          book.quantity = quantity
+          book.quantity += quantity
           println(
             s"Quantity of book '${book.title}' updated successfully!\n$book"
           )
@@ -205,7 +234,7 @@ class Library {
     if (filteredBooks.isEmpty) println("None")
     else
       filteredBooks.foreach { case (id, book) =>
-        // println(s"${b.title} - ${b.author} - ${b.isbn} - ${b.price}")
+        book.showPriceAndQuantity = true
         println(book)
       }
   }
@@ -215,9 +244,7 @@ class Library {
     if (books.isEmpty) println("None")
     else
       books.foreach { case (id, book) =>
-        // println(
-        //   s"${b.title} - ${b.author} - ${b.isbn} - ${b.price} - quantity : ${b.quantity}"
-        // )
+        book.showPriceAndQuantity = true
         println(book)
       }
   }

@@ -13,16 +13,16 @@ object LibraryApp {
 
 
 Please select an option from following menu: 
- ---------------------------------------------------------------
-| 1. Add a customer             |   2. Remove a customer        |
-| 3. Add a student              |   4. Remove a student         |
-| 5. Show customer details      |   6. Show student details     |
-| 7. Add a book                 |   8. Update book quantity     |
-| 9. Search a book              |   10. Show all books          |
-| 11. Check Out a book          |   12. Check In a book         |
-| 13. Show all customers        |   14. Show all students       |
-| 15. Deposit Money             |   16. Exit                    |
- ---------------------------------------------------------------
+ -----------------------------------------------------------------
+| 1.  Add a customer             |   2.  Remove a customer        |
+| 3.  Add a student              |   4.  Remove a student         |
+| 5.  Show customer details      |   6.  Show student details     |
+| 7.  Add a book                 |   8.  Update book quantity     |
+| 9.  Search a book              |   10. Show all books           |
+| 11. Check Out a book           |   12. Check In a book          |
+| 13. Show all customers         |   14. Show all students        |
+| 15. Deposit Money              |   16. Exit                     |
+ -----------------------------------------------------------------
 
 """
       )
@@ -45,12 +45,10 @@ Please select an option from following menu:
             }
 
             library.addCustomer(name, balance)
-            print("Customer added successfully!")
           case 2 =>
             var customerId = readLine(
               "Enter Id of customer to be removed: "
             ).toInt
-            library.showCustomerDetails(id = customerId)
             library.removeCustomer(id = customerId)
           case 3 =>
             var name = readLine("Enter name of student: ")
@@ -148,6 +146,8 @@ Please select an option from following menu:
             )
         }
       } catch {
+        case a: NumberFormatException =>
+          println(s"NumberFormatException occured. Try again!")
         case _ =>
           println(
             "Invalid choice! Please choose an options from given list only."
